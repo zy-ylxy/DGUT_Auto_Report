@@ -21,8 +21,10 @@ jobs:
         run: pip install -r requirements.txt
       - name: Report
         run: |
+        do
         python Auto_Report.py <<EOF
         echo ${{ secrets.USERNAME }}
         echo ${{ secrets.PASSWORD }}
         echo ${{ secrets.DATA }}
         EOF
+        done
