@@ -1,0 +1,23 @@
+name: 学生助理考勤
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '30 15 * * *'
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Report
+        run: python Auto_Report.py ${{ secrets.USERNAME }} ${{ secrets.PASSWORD }} '${{ secret.DATA }}'
