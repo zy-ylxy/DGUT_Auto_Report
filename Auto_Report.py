@@ -11,10 +11,10 @@ try:
     password = sys.argv[2]
     data = json.loads(sys.argv[3])
 
-    while True:
-        if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 20:
-            break
-        time.sleep(60)
+    # while True:
+    #     if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 20:
+    #         break
+    #     time.sleep(60)
 
     # 获取当日时间，修改字典
     now = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
