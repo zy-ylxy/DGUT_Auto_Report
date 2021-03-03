@@ -7,9 +7,9 @@ import sys
 import time
 
 try:
-    username = input()
-    password = input()
-    data = json.loads(input())
+    username = sys.argv[1]
+    password = sys.argv[2]
+    data = json.loads(sys.argv[3])
 
     # while True:
     #     if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 20:
