@@ -30,7 +30,7 @@ if __name__ == "__main__":
             'family_address_detail': family_address_detail,
         }
 
-        fp = open("./data1.json", 'rb')
+        fp = open("./data.json", 'rb')
         form2 = json.loads(fp.read())
         data = Merge(form1, form2)
 
