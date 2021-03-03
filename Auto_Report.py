@@ -76,7 +76,7 @@ if __name__ == "__main__":
             print("-"*20 + "结果" + "-"*20)
             print(response)
             print(response.text)
-            if json.loads(response.text)['code'] in [200, 400]:
+            if json.loads(response.text)['code'] in [200, 400] and json.loads(response.text)['info'] != 1:
                 break
             if count > 10:
                 print("打卡失败")
