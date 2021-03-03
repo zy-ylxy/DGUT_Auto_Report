@@ -49,13 +49,19 @@ if __name__ == "__main__":
             u.timeout = 30
 
             # 登录
-            response = u.signin('illness')
-            print(response)
+            for i in range(3):
+                response = u.signin('illness')
+                print(response['message'])
+                if response['code'] == 1:
+                    break
+                time.sleep(30)
 
             # 获取access_token
             access_token = re.search(
                 r'access_token=(.*)', u.login['illness']['response'][0][2].url, re.S).group(1)
-            print(f"access_token={access_token}")
+            if not access_token:
+                print("获取access_token失败")
+                raise Exception
 
             # 构造headers
             headers = {
