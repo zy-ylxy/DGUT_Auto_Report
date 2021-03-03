@@ -30,14 +30,14 @@ if __name__ == "__main__":
             'family_address_detail': family_address_detail,
         }
 
-        fp = open("./data.json", 'rb')
+        fp = open("./data1.json", 'rb')
         form2 = json.loads(fp.read())
         data = Merge(form1, form2)
 
-        # while True:
-        #     if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 20:
-        #         break
-        #     time.sleep(60)
+        while True:
+            if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 20:
+                break
+            time.sleep(60)
 
         # 获取当日时间，修改字典
         now = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
