@@ -15,73 +15,97 @@ def Merge(dict1, dict2):
     return res
 
 
+def pop_dict(data: dict, pop_list: list):
+    pop_items = []
+    for i in data.keys():
+        if i in pop_list:
+            pop_items.append(i)
+    for i in pop_items:
+        data.pop(i)
+    return data
+
+
 if __name__ == "__main__":
     try:
+        # 1、输入账号密码
         username = sys.argv[1]
         password = sys.argv[2]
 
-        card_number, tel, connect_person, connect_tel, family_address_detail = sys.argv[3].split(
-            ",")
-        form1 = {
-            'card_number': card_number,
-            'tel': tel,
-            'connect_person': connect_person,
-            'connect_tel': connect_tel,
-            'family_address_detail': family_address_detail,
-        }
-
-        fp = open("./data.json", 'rb')
-        form2 = json.loads(fp.read())
-        data = Merge(form1, form2)
-
+        # 2、监控时间，启动程序
         while True:
             if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 20:
                 break
             time.sleep(60)
 
-        # 获取当日时间，修改字典
-        now = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
-        data['submit_time'] = now.strftime("%Y-%m-%d")
+        # 3、创建用户类
+        u = DgutLogin(username, password)
 
-        count = 1
-        while True:
+        # 4、登录用户并获取access_token
+        response = u.signin('illness')
+        if response['code'] == 400:
+            exit(u.login['illness']['response'][0][1].text)
+        while response['code'] != 1:
+            time.sleep(5)
             u = DgutLogin(username, password)
-            u.timeout = 30
+            response = u.signin('illness')
 
-            # 登录
-            for i in range(3):
-                response = u.signin('illness')
-                print(response['message'])
-                if response['code'] == 1:
-                    break
-                time.sleep(30)
+        access_token = re.search(
+            r'access_token=(.*)', u.login['illness']['response'][0][2].url, re.S)
+        if not access_token:
+            exit("获取access_token失败")
+        access_token = access_token.group(1)
+        headers = {
+            'authorization': 'Bearer ' + access_token,
+            'Host': 'yqfk.dgut.edu.cn',
+            'Referer': 'https://yqfk.dgut.edu.cn/main',
+        }
 
-            # 获取access_token
-            access_token = re.search(
-                r'access_token=(.*)', u.login['illness']['response'][0][2].url, re.S).group(1)
-            if not access_token:
-                print("获取access_token失败")
-                raise Exception
+        # 5、获取并修改数据
+        count = 1
+        response = u.session.get(
+            'https://yqfk.dgut.edu.cn/home/base_info/getBaseInfo', headers=headers)
+        while json.loads(response.text)['code'] != 200 and count < 20:
+            time.sleep(5)
+            response = u.session.get(
+                'https://yqfk.dgut.edu.cn/home/base_info/getBaseInfo', headers=headers)
+            count += 1
+        if json.loads(response.text)['code'] != 200:
+            exit("获取个人基本信息失败")
+        data = json.loads(response.text)['info']
+        pop_list = [
+            'can_submit',
+            'class_id',
+            'class_name',
+            'continue_days',
+            'create_time',
+            'current_area',
+            'current_city',
+            'current_country',
+            'current_district',
+            'current_province',
+            'faculty_id',
+            'faculty_name',
+            'id',
+            'msg',
+            'name',
+            'username',
+            'whitelist'
+        ]
+        data = pop_dict(data, pop_list)
+        data['important_area'] = None
+        data['current_region'] = None
 
-            # 构造headers
-            headers = {
-                'authorization': 'Bearer ' + access_token,
-                'Host': 'yqfk.dgut.edu.cn',
-                'Referer': 'https://yqfk.dgut.edu.cn/main',
-            }
-
-            # 提交
+        # 6、提交数据
+        count = 1
+        response = u.session.post(
+            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
+        while json.loads(response.text)['code'] not in [200, 400] and count < 20:
+            time.sleep(5)
             response = u.session.post(
                 "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
-            print("-"*20 + "结果" + "-"*20)
-            print(response)
-            print(response.text)
-            if json.loads(response.text)['code'] in [200, 400] and json.loads(response.text)['info'] != 1:
-                break
-            if count > 10:
-                print("打卡失败")
-                raise Exception
-            time.sleep(60*5)
+            count += 1
+        print(response)
+        print(response.text)
     except IndexError:
         print("请完整输入账号、密码和提交的表单")
     except json.decoder.JSONDecodeError:
