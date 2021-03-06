@@ -113,6 +113,7 @@ if __name__ == "__main__":
             response = u.session.post(
                 "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
             time.sleep(2)
+            print(response.text)
 
     except IndexError:
         print("请完整输入账号、密码和提交的表单")
