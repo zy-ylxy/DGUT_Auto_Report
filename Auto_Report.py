@@ -99,21 +99,18 @@ if __name__ == "__main__":
         #     print(f"{key}: {value}")
 
         # 6、提交数据
-        # count = 1
-        # response = u.session.post(
-        #     "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
-        # while json.loads(response.text)['code'] not in [200, 400] and count < 20:
-        #     time.sleep(5)
-        #     response = u.session.post(
-        #         "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
-        #     count += 1
-        # print(response)
-        # print(response.text)
-        for i in range(10):
+        count = 1
+        response = u.session.post(
+            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
+        while (json.loads(response.text)['code'] not in [200, 400] or json.loads(response.text)['info'] == 1) and count < 40:
+            time.sleep(5)
             response = u.session.post(
                 "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
-            time.sleep(2)
+            count += 1
+            print(response)
             print(response.text)
+        if count >= 40:
+            print("打卡失败")
 
     except IndexError:
         print("请完整输入账号、密码和提交的表单")
