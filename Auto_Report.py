@@ -89,7 +89,8 @@ if __name__ == "__main__":
             'msg',
             'name',
             'username',
-            'whitelist'
+            'whitelist',
+            'importantAreaMsg',
         ]
         data = pop_dict(data, pop_list)
         data['important_area'] = None
@@ -98,16 +99,16 @@ if __name__ == "__main__":
             print(f"{key}: {value}")
 
         # 6、提交数据
-        count = 1
-        response = u.session.post(
-            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
-        while json.loads(response.text)['code'] not in [200, 400] and count < 20:
-            time.sleep(5)
-            response = u.session.post(
-                "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
-            count += 1
-        print(response)
-        print(response.text)
+        # count = 1
+        # response = u.session.post(
+        #     "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
+        # while json.loads(response.text)['code'] not in [200, 400] and count < 20:
+        #     time.sleep(5)
+        #     response = u.session.post(
+        #         "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
+        #     count += 1
+        # print(response)
+        # print(response.text)
     except IndexError:
         print("请完整输入账号、密码和提交的表单")
     except json.decoder.JSONDecodeError:
