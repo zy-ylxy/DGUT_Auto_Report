@@ -97,7 +97,7 @@ if __name__ == "__main__":
         data['current_region'] = None
         for key, value in data.items():
             print(f"{key}: {value}")
-
+        print("-"*50)
         # 6、提交数据
         count = 1
         response = u.session.post(
