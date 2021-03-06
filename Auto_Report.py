@@ -32,10 +32,10 @@ if __name__ == "__main__":
         password = sys.argv[2]
 
         # 2、监控时间，启动程序
-        while True:
-            if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 10:
-                break
-            time.sleep(60)
+        # while True:
+        #     if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 10:
+        #         break
+        #     time.sleep(60)
 
         # 3、创建用户类
         u = DgutLogin(username, password)
@@ -94,6 +94,8 @@ if __name__ == "__main__":
         data = pop_dict(data, pop_list)
         data['important_area'] = None
         data['current_region'] = None
+        for key, value in data.items():
+            print(f"{key}: {value}")
 
         # 6、提交数据
         count = 1
