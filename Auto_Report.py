@@ -95,8 +95,8 @@ if __name__ == "__main__":
         data = pop_dict(data, pop_list)
         data['important_area'] = None
         data['current_region'] = None
-        # for key, value in data.items():
-        #     print(f"{key}: {value}")
+        for key, value in data.items():
+            print(f"{key}: {value}")
 
         # 6、提交数据
         count = 1
