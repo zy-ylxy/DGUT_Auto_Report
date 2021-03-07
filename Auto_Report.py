@@ -105,7 +105,7 @@ if __name__ == "__main__":
         result = json.loads(response.text)
         print(response)
         print(response.text)
-        while (result['code'] not in [200, 400] or (result['code'] == 200 and result['info'] != 0)) and count < 40:
+        while (result['code'] not in [200, 400] or (result['code'] == 200 and result['info'] != 0)) and count < 100:
             time.sleep(5)
             response = u.session.post(
                 "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
