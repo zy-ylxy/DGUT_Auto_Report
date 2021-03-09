@@ -113,7 +113,7 @@ if __name__ == "__main__":
             count += 1
             print(response)
             print(response.text)
-        if count >= 200:
+        if count > 200:
             print("打卡失败")
 
     except IndexError:
