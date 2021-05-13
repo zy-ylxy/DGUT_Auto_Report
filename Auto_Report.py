@@ -1,76 +1,37 @@
-# coding:utf-8
-from Dgut.DgutLogin import DgutLogin
-import re
-import json
-import datetime
-import sys
-import time
+import click
+from dgut_requests.dgut import *
 
 
-def Merge(dict1, dict2):
-    '''
-    合并两个字典
-    '''
-    res = {**dict1, **dict2}
-    return res
-
-
-def pop_dict(data: dict, pop_list: list):
-    pop_items = []
-    for i in data.keys():
-        if i in pop_list:
-            pop_items.append(i)
-    for i in pop_items:
-        data.pop(i)
-    return data
-
-
-if __name__ == "__main__":
-    try:
-        # 1、输入账号密码
-        username = sys.argv[1]
-        password = sys.argv[2]
-
-        # 2、监控时间，启动程序
-#         while True:
-#             if (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).hour == 0 and (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).minute >= 20:
-#                 break
-#             time.sleep(60)
-
-        # 3、创建用户类
-        u = DgutLogin(username, password)
-
-        # 4、登录用户并获取access_token
-        response = u.signin('illness')
-        if response['code'] == 400:
-            exit(u.login['illness']['response'][0][1].text)
-        while response['code'] != 1:
-            time.sleep(5)
-            u = DgutLogin(username, password)
-            response = u.signin('illness')
-
-        access_token = re.search(
-            r'access_token=(.*)', u.login['illness']['response'][0][2].url, re.S)
-        if not access_token:
-            exit("获取access_token失败")
-        access_token = access_token.group(1)
-        headers = {
-            'authorization': 'Bearer ' + access_token,
+class dgutIll(dgutUser):
+    def __init__(self, username: str, password: str):
+        dgutUser.__init__(self, username, password)
+        self.session.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
             'Host': 'yqfk.dgut.edu.cn',
-            'Referer': 'https://yqfk.dgut.edu.cn/main',
         }
 
-        # 5、获取并修改数据
-        count = 1
-        response = u.session.get(
-            'https://yqfk.dgut.edu.cn/home/base_info/getBaseInfo', headers=headers)
-        while json.loads(response.text)['code'] != 200 and count < 20:
-            time.sleep(5)
-            response = u.session.get(
-                'https://yqfk.dgut.edu.cn/home/base_info/getBaseInfo', headers=headers)
-            count += 1
+    @decorator_signin(illness_login)
+    def report(self):
+        # 1、获取access_token
+        response = self.signin(illness_login)
+        access_token = re.search(
+            r'access_token=(.*)', response.url, re.S)
+        if not access_token:
+            raise AuthError("获取access_token失败")
+        access_token = access_token.group(1)
+        self.session.headers['authorization'] = 'Bearer ' + access_token
+
+        # GPS
+        response = self.session.get(
+            "https://yqfk.dgut.edu.cn/home/base_info/getGPSAddress?longitude=113.87651&latitude=22.90701&reject=1")
+        print("GPS:")
+        print(response, response.text)
+
+        # 2、获取并修改数据
+        response = self.session.get(
+            'https://yqfk.dgut.edu.cn/home/base_info/getBaseInfo')
         if json.loads(response.text)['code'] != 200:
-            exit("获取个人基本信息失败")
+            raise AuthError("获取个人基本信息失败")
         data = json.loads(response.text)['info']
         pop_list = [
             'can_submit',
@@ -92,31 +53,28 @@ if __name__ == "__main__":
             'whitelist',
             'importantAreaMsg',
         ]
-        data = pop_dict(data, pop_list)
-        data['important_area'] = None
-        data['current_region'] = None
-        # for key, value in data.items():
-        #     print(f"{key}: {value}")
+        for key in pop_list:
+            if data.get(key):
+                data.pop(key)
 
-        # 6、提交数据
-        count = 1
-        response = u.session.post(
-            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
-        result = json.loads(response.text)
-        print(response)
-        print(response.text)
-        while (result['code'] not in [200, 400] or (result['code'] == 200 and result['info'] != 0)) and count < 200:
-            time.sleep(5)
-            response = u.session.post(
-                "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", headers=headers, json=data)
-            result = json.loads(response.text)
-            count += 1
-            print(response)
-            print(response.text)
-        if count > 200:
-            print("打卡失败")
+        # 3、提交数据
+        response = self.session.post(
+            "https://yqfk.dgut.edu.cn/home/base_info/addBaseInfo", json=data)
+        return json.loads(response.text)
 
-    except IndexError:
-        print("请完整输入账号、密码和提交的表单")
-    except json.decoder.JSONDecodeError:
-        print("json解析错误")
+
+@click.command()
+@click.option('-U', '--username', required=True, help="中央认证账号用户名", type=str)
+@click.option('-P', '--password', required=True, help="中央认证账号密码", type=str)
+def main(username, password):
+    users = username.split(",")
+    pwds = password.split(",")
+    if len(users) != len(pwds):
+        exit("账号和密码个数不一致")
+    for usr in zip(users, pwds):
+        u = dgutIll(usr[0], usr[1])
+        print(u.report())
+
+
+if __name__ == '__main__':
+    main()

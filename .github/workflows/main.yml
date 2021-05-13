@@ -20,5 +20,5 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt
       - name: Report
-        run: python Auto_Report.py ${{ secrets.USERNAME }} ${{ secrets.PASSWORD }} ${{ secrets.DATA }}
+        run: python Auto_Report.py -U ${{ secrets.USERNAME }} -P ${{ secrets.PASSWORD }}
 
