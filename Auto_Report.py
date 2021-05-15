@@ -53,7 +53,10 @@ class dgutIll(dgutUser):
 
         # GPS
         response = self.session.get(
-            "https://yqfk.dgut.edu.cn/home/base_info/getGPSAddress?longitude=113.87651&latitude=22.90701")
+            "https://yqfk.dgut.edu.cn/home/base_info/getGPSAddress", params={
+                'longitude': longitude,
+                'latitude': latitude
+            })
         print("GPS:")
         print(response, response.text)
 
