@@ -1,2 +1,2 @@
-dgut-requests==0.1.2
+dgut-requests
 click==7.1.2
