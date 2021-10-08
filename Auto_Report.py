@@ -1,5 +1,4 @@
 from gevent import monkey;monkey.patch_all()
-import logging
 import click
 from dgut_requests.dgut import dgutIllness
 from retry import retry
